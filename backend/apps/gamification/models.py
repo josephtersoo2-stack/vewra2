@@ -218,7 +218,10 @@ class StreakSettings(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.pk and StreakSettings.objects.exists():
-            self.pk = StreakSettings.objects.first().pk
+            existing = StreakSettings.objects.first()
+            self.pk = existing.pk
+            self._state.adding = False
+            kwargs.pop('force_insert', None)
         super().save(*args, **kwargs)
 
     @classmethod

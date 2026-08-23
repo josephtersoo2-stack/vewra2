@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'apps.ai_service',
     'apps.admin_api',
     'apps.gamification',
+    'apps.xp_badges',
 ]
 
 MIDDLEWARE = [
