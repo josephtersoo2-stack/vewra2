@@ -64,5 +64,3 @@ export function App() {
 }
 
 export default App;
-
-// Phase 1.2: SpinWheelSettingsPage route registered.
