@@ -162,3 +162,125 @@ class XPEngineTests(TestCase):
         self.assertTrue(user_earning_badge.is_unlocked)
         self.assertEqual(user_earning_badge.tier, 'bronze')
         self.assertEqual(user_earning_badge.progress_current, 150.0)
+
+
+# -----------------------------------------------------------------------
+# Phase 1.4: Mobile API Endpoint Tests
+# -----------------------------------------------------------------------
+
+from django.urls import reverse
+from rest_framework.test import APIClient
+
+
+class UserProfileXPAPITests(TestCase):
+    """Tests for GET /api/v1/xp-badges/profile/"""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(
+            username='api_hero', email='api@example.com', password='testpass123'
+        )
+        self.client.force_authenticate(user=self.user)
+        # Give the user some XP so there's real data to assert on
+        add_xp(self.user, 50, source='test_setup')
+
+    def test_requires_authentication(self):
+        anon_client = APIClient()
+        response = anon_client.get(reverse('xp-profile'))
+        self.assertEqual(response.status_code, 401)
+
+    def test_returns_xp_profile_for_authenticated_user(self):
+        response = self.client.get(reverse('xp-profile'))
+        self.assertEqual(response.status_code, 200)
+
+        data = response.json()
+        self.assertEqual(data['username'], 'api_hero')
+        self.assertEqual(data['xp'], 50)
+        self.assertGreaterEqual(data['level'], 1)
+        self.assertIn('xp_for_next_level', data)
+        self.assertIn('xp_progress_percent', data)
+        self.assertIn('streak_freeze_count', data)
+        self.assertIn('showcase_badges', data)
+        self.assertIsInstance(data['showcase_badges'], list)
+
+    def test_xp_progress_percent_is_within_range(self):
+        response = self.client.get(reverse('xp-profile'))
+        self.assertEqual(response.status_code, 200)
+        pct = response.json()['xp_progress_percent']
+        self.assertGreaterEqual(pct, 0.0)
+        self.assertLessEqual(pct, 100.0)
+
+
+class UserBadgeListAPITests(TestCase):
+    """Tests for GET /api/v1/xp-badges/badges/"""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(
+            username='badge_hero', email='badge@example.com', password='testpass123'
+        )
+        self.client.force_authenticate(user=self.user)
+
+        # Create a couple of badges for the catalog
+        self.badge_watch = Badge.objects.create(
+            key='couch_potato', name='Couch Potato',
+            description='10 hours total watch time', category='watch',
+            target_bronze=10, target_silver=50, target_gold=250, target_diamond=1000,
+        )
+        self.badge_earning = Badge.objects.create(
+            key='coin_collector_api', name='Coin Collector',
+            description='Earn 1000 coins', category='earning',
+            target_bronze=1000, target_silver=10000, target_gold=50000, target_diamond=1000000,
+        )
+
+    def test_requires_authentication(self):
+        anon_client = APIClient()
+        response = anon_client.get(reverse('user-badges'))
+        self.assertEqual(response.status_code, 401)
+
+    def test_returns_full_badge_catalog(self):
+        response = self.client.get(reverse('user-badges'))
+        self.assertEqual(response.status_code, 200)
+
+        data = response.json()
+        self.assertIn('count', data)
+        self.assertIn('badges', data)
+        self.assertEqual(data['count'], 2)
+        self.assertEqual(len(data['badges']), 2)
+
+    def test_badge_has_all_required_fields(self):
+        response = self.client.get(reverse('user-badges'))
+        badge_data = response.json()['badges'][0]
+
+        for field in ['id', 'key', 'name', 'description', 'category',
+                      'icon_url', 'is_hidden', 'target_bronze', 'target_silver',
+                      'target_gold', 'target_diamond', 'tier', 'progress_current',
+                      'progress_target', 'is_unlocked', 'awarded_at']:
+            self.assertIn(field, badge_data, msg=f"Missing field: {field}")
+
+    def test_locked_badges_default_to_none_tier(self):
+        """Badges with no UserBadge record must appear as tier='none', is_unlocked=False."""
+        response = self.client.get(reverse('user-badges'))
+        badges = response.json()['badges']
+        for b in badges:
+            self.assertEqual(b['tier'], 'none')
+            self.assertFalse(b['is_unlocked'])
+            self.assertIsNone(b['awarded_at'])
+
+    def test_unlocked_badge_shows_correct_tier(self):
+        """After creating a UserBadge record, the badge list must reflect the tier."""
+        UserBadge.objects.create(
+            user=self.user, badge=self.badge_watch,
+            tier='bronze', progress_current=12.0, progress_target=10.0,
+            is_unlocked=True,
+        )
+        response = self.client.get(reverse('user-badges'))
+        badges = {b['key']: b for b in response.json()['badges']}
+
+        self.assertEqual(badges['couch_potato']['tier'], 'bronze')
+        self.assertTrue(badges['couch_potato']['is_unlocked'])
+        self.assertEqual(badges['couch_potato']['progress_current'], 12.0)
+
+        # The earning badge should still be locked
+        self.assertEqual(badges['coin_collector_api']['tier'], 'none')
+        self.assertFalse(badges['coin_collector_api']['is_unlocked'])

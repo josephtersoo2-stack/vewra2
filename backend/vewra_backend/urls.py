@@ -24,4 +24,5 @@ urlpatterns = [
     path('api/v1/admin/fraud/', AdminFraudQueueView.as_view(), name='admin_fraud_queue'),
     path('api/v1/admin/', include('apps.admin_api.urls')),
     path('api/v1/', include('apps.gamification.urls')),
+    path('api/v1/xp-badges/', include('apps.xp_badges.urls')),
 ]
