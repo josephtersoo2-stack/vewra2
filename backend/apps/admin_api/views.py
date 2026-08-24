@@ -13,7 +13,8 @@ from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, Ou
 from apps.tasks.models import VideoTask, WatchSession
 from apps.wallet.models import Wallet, WalletTransaction
 from apps.ai_service.models import AISettings
-from apps.gamification.models import StreakSettings, SpinWheelSegment
+from apps.gamification.models import StreakSettings, SpinWheelSegment, Badge
+from apps.xp_badges.models import XPSettings
 from apps.ai_service.services import generate_video_keywords, extract_youtube_metadata, get_available_models
 from apps.ai_service.providers.gemini import fetch_gemini_models
 from apps.ai_service.providers.openrouter import fetch_openrouter_models
@@ -27,6 +28,8 @@ from .serializers import (
     AdminTestPromptSerializer,
     AdminStreakSettingsSerializer,
     AdminSpinWheelSegmentSerializer,
+    AdminXPSettingsSerializer,
+    AdminBadgeSerializer,
 )
 
 User = get_user_model()
@@ -624,4 +627,34 @@ class AdminSpinWheelSegmentViewSet(viewsets.ModelViewSet):
             'segments': serializer.data,
         }, status=status.HTTP_200_OK)
 
-# Phase 1.2: AdminSpinWheelSegmentViewSet registered.
+
+class AdminXPSettingsView(generics.RetrieveUpdateAPIView):
+    """
+    Phase 1.3: Admin API to retrieve and update singleton XP Engine settings.
+    """
+    permission_classes = [IsAdminOrStaff]
+    serializer_class = AdminXPSettingsSerializer
+
+    def get_object(self):
+        return XPSettings.load()
+
+
+class AdminBadgeViewSet(viewsets.ModelViewSet):
+    """
+    Phase 1.3: Admin ViewSet to view, create, edit, and manage badge milestones & thresholds.
+    """
+    permission_classes = [IsAdminOrStaff]
+    queryset = Badge.objects.all().order_by('category', 'name')
+    serializer_class = AdminBadgeSerializer
+
+    @action(detail=False, methods=['post'], url_path='seed_defaults')
+    def seed_defaults(self, request):
+        from apps.gamification.services.badge_service import seed_default_badges
+        seed_default_badges()
+        serializer = self.get_serializer(Badge.objects.all().order_by('category', 'name'), many=True)
+        return Response({
+            'success': True,
+            'message': 'Successfully seeded default badges.',
+            'count': len(serializer.data),
+            'badges': serializer.data,
+        }, status=status.HTTP_200_OK)

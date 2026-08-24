@@ -17,6 +17,8 @@ export function AdminLayout() {
       case '/ledger': return 'Financial Ledger';
       case '/gamification': return 'Gamification Settings';
       case '/spin-wheel': return 'Spin Wheel Configuration';
+      case '/xp-settings': return 'XP & Leveling Configuration';
+      case '/badges': return 'Badges & Achievements';
       case '/security': return 'Security & Token Blacklist';
       default: return 'Admin Command Center';
     }

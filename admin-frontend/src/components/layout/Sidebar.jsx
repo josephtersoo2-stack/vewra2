@@ -9,6 +9,8 @@ import {
   Wallet,
   Trophy,
   PieChart,
+  Zap,
+  Award,
   ShieldAlert,
   LogOut,
   ChevronLeft,
@@ -26,8 +28,10 @@ export function Sidebar({ isCollapsed, setIsCollapsed }) {
     { to: '/sessions', label: 'Watch Sessions', icon: PlayCircle },
     { to: '/users', label: 'Users & Accounts', icon: Users },
     { to: '/ledger', label: 'Financial Ledger', icon: Wallet },
-    { to: '/gamification', label: 'Gamification Settings', icon: Trophy },
+    { to: '/gamification', label: 'Daily Streaks', icon: Trophy },
     { to: '/spin-wheel', label: 'Spin Wheel', icon: PieChart },
+    { to: '/xp-settings', label: 'XP & Leveling', icon: Zap },
+    { to: '/badges', label: 'Badges', icon: Award },
     { to: '/security', label: 'Token Security', icon: ShieldAlert },
   ];
 

@@ -12,6 +12,8 @@ from .views import (
     AdminTokenBlacklistView,
     AdminStreakSettingsView,
     AdminSpinWheelSegmentViewSet,
+    AdminXPSettingsView,
+    AdminBadgeViewSet,
 )
 
 router = DefaultRouter()
@@ -20,6 +22,7 @@ router.register(r'watch-sessions', AdminWatchSessionViewSet, basename='admin-wat
 router.register(r'users', AdminUserViewSet, basename='admin-users')
 router.register(r'wallet-transactions', AdminWalletTransactionViewSet, basename='admin-wallet-transactions')
 router.register(r'spin-wheel-segments', AdminSpinWheelSegmentViewSet, basename='admin-spin-wheel-segments')
+router.register(r'badges', AdminBadgeViewSet, basename='admin-badges')
 
 urlpatterns = [
     path('stats/', DashboardStatsView.as_view(), name='admin-dashboard-stats'),
@@ -27,8 +30,7 @@ urlpatterns = [
     path('ai-settings/fetch-models/', AdminAIFetchModelsView.as_view(), name='admin-ai-fetch-models'),
     path('ai-settings/test-sandbox/', AdminAITestSandboxView.as_view(), name='admin-ai-test-sandbox'),
     path('gamification-settings/', AdminStreakSettingsView.as_view(), name='admin-gamification-settings'),
+    path('xp-settings/', AdminXPSettingsView.as_view(), name='admin-xp-settings'),
     path('tokens/', AdminTokenBlacklistView.as_view(), name='admin-tokens'),
     path('', include(router.urls)),
 ]
-
-# Phase 1.2: spin-wheel-segments router registered.

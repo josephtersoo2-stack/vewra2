@@ -49,6 +49,18 @@ def run_admin_api_tests():
     res_tokens = client.get('/api/v1/admin/tokens/')
     print(f"Tokens endpoint: Status={res_tokens.status_code}, Outstanding={len(res_tokens.data.get('outstanding_tokens', []))}")
 
+    # 8. Spin Wheel Segments
+    res_spin = client.get('/api/v1/admin/spin-wheel-segments/')
+    print(f"Spin Segments endpoint: Status={res_spin.status_code}, Count={len(res_spin.data)}")
+
+    # 9. XP Settings
+    res_xp = client.get('/api/v1/admin/xp-settings/')
+    print(f"XP Settings endpoint: Status={res_xp.status_code}, XP/min={res_xp.data.get('xp_per_minute_watched')}")
+
+    # 10. Badges
+    res_badges = client.get('/api/v1/admin/badges/')
+    print(f"Badges endpoint: Status={res_badges.status_code}, Count={len(res_badges.data)}")
+
     print("\nALL ADMIN API ENDPOINTS VERIFIED SUCCESSFULLY!")
 
 if __name__ == '__main__':

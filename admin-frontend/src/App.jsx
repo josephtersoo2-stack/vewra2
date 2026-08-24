@@ -15,6 +15,8 @@ import { WalletLedgerPage } from './pages/WalletLedgerPage';
 import { SecurityPage } from './pages/SecurityPage';
 import { GamificationSettingsPage } from './pages/GamificationSettingsPage';
 import { SpinWheelSettingsPage } from './pages/SpinWheelSettingsPage';
+import { XPSettingsPage } from './pages/XPSettingsPage';
+import { BadgesManagementPage } from './pages/BadgesManagementPage';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, isAdmin } = useAuth();
@@ -48,6 +50,8 @@ export function App() {
               <Route path="ledger" element={<WalletLedgerPage />} />
               <Route path="gamification" element={<GamificationSettingsPage />} />
               <Route path="spin-wheel" element={<SpinWheelSettingsPage />} />
+              <Route path="xp-settings" element={<XPSettingsPage />} />
+              <Route path="badges" element={<BadgesManagementPage />} />
               <Route path="security" element={<SecurityPage />} />
             </Route>
 

@@ -135,6 +135,42 @@ export const adminApi = {
     return res.data;
   },
 
+  // XP & Leveling Settings (Phase 1.3)
+  getXPSettings: async () => {
+    const res = await apiClient.get('/admin/xp-settings/');
+    return res.data;
+  },
+  updateXPSettings: async (data) => {
+    const res = await apiClient.put('/admin/xp-settings/', data);
+    return res.data;
+  },
+  patchXPSettings: async (data) => {
+    const res = await apiClient.patch('/admin/xp-settings/', data);
+    return res.data;
+  },
+
+  // Badges & Achievements (Phase 1.3)
+  getBadges: async () => {
+    const res = await apiClient.get('/admin/badges/');
+    return res.data;
+  },
+  createBadge: async (data) => {
+    const res = await apiClient.post('/admin/badges/', data);
+    return res.data;
+  },
+  updateBadge: async (id, data) => {
+    const res = await apiClient.patch(`/admin/badges/${id}/`, data);
+    return res.data;
+  },
+  deleteBadge: async (id) => {
+    const res = await apiClient.delete(`/admin/badges/${id}/`);
+    return res.data;
+  },
+  seedDefaultBadges: async () => {
+    const res = await apiClient.post('/admin/badges/seed_defaults/');
+    return res.data;
+  },
+
   // Tokens & Security
   getTokens: async () => {
     const res = await apiClient.get('/admin/tokens/');
@@ -145,5 +181,3 @@ export const adminApi = {
     return res.data;
   },
 };
-
-// Phase 1.2: Spin wheel API client functions registered.

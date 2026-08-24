@@ -3,7 +3,8 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from apps.tasks.models import VideoTask, WatchSession
 from apps.ai_service.models import AISettings
-from apps.gamification.models import StreakSettings, SpinWheelSegment
+from apps.gamification.models import StreakSettings, SpinWheelSegment, Badge
+from apps.xp_badges.models import XPSettings
 from apps.wallet.models import Wallet, WalletTransaction
 
 User = get_user_model()
@@ -162,3 +163,37 @@ class AdminSpinWheelSegmentSerializer(serializers.ModelSerializer):
             'updated_at',
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
+
+
+class AdminXPSettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = XPSettings
+        fields = [
+            'id',
+            'xp_per_minute_watched',
+            'xp_for_completing_task',
+            'xp_for_daily_streak',
+            'xp_for_daily_spin',
+            'xp_for_referral',
+            'updated_at',
+        ]
+        read_only_fields = ['id', 'updated_at']
+
+
+class AdminBadgeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Badge
+        fields = [
+            'id',
+            'key',
+            'name',
+            'description',
+            'category',
+            'icon_url',
+            'is_hidden',
+            'target_bronze',
+            'target_silver',
+            'target_gold',
+            'target_diamond',
+        ]
+        read_only_fields = ['id']
