@@ -172,9 +172,9 @@ def process_watch_progress(user, session_id: int, current_time: float, delta_sec
 
         lucky_drop = None
         try:
-            from apps.gamification.services.xp_service import add_xp
+            from apps.xp_badges.services.xp_engine import add_xp
             from apps.gamification.services.quest_service import update_quest_progress
-            from apps.gamification.services.badge_service import evaluate_user_badges
+            from apps.xp_badges.services.badge_engine import evaluate_all_badges
             import random
 
             # Award XP
@@ -209,7 +209,7 @@ def process_watch_progress(user, session_id: int, current_time: float, delta_sec
                 }
 
             # Evaluate Badges
-            evaluate_user_badges(user)
+            evaluate_all_badges(user)
         except Exception:
             pass
 

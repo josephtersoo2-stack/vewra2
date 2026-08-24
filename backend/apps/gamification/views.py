@@ -8,8 +8,8 @@ from apps.gamification.services.streak_service import get_streak_status, claim_d
 from apps.gamification.services.spin_service import get_spin_status, execute_daily_spin
 from apps.gamification.services.scratch_service import get_scratch_status, execute_daily_scratch
 from apps.gamification.services.quest_service import get_or_create_daily_quests, claim_quest_reward
-from apps.gamification.services.xp_service import get_level_rewards_catalog
-from apps.gamification.services.badge_service import evaluate_user_badges
+from apps.xp_badges.services.xp_engine import get_level_rewards_catalog
+from apps.xp_badges.services.badge_engine import evaluate_all_badges
 
 class DailyStreakStatusView(APIView):
     permission_classes = [IsAuthenticated]
@@ -85,7 +85,7 @@ class BadgeListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        evaluate_user_badges(request.user)
+        evaluate_all_badges(request.user)
         badges = Badge.objects.all()
         serializer = BadgeSerializer(badges, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)

@@ -20,14 +20,23 @@ from apps.gamification.models import (
     UserProfile, DailyLoginStreak, SpinWheelClaim,
     Badge, UserBadge, DailyQuest, ScratchCardClaim
 )
-from apps.gamification.services.xp_service import calculate_level, add_xp
+from apps.xp_badges.services.xp_engine import add_xp
 from apps.gamification.services.streak_service import claim_daily_streak, get_streak_status
 from apps.gamification.services.spin_service import execute_daily_spin, get_spin_status
 from apps.gamification.services.quest_service import get_or_create_daily_quests, update_quest_progress, claim_quest_reward
-from apps.gamification.services.badge_service import evaluate_user_badges, seed_default_badges
+from apps.xp_badges.services.badge_engine import evaluate_all_badges as evaluate_user_badges, seed_default_badges
 from apps.gamification.services.scratch_service import execute_daily_scratch, get_scratch_status
 from apps.tasks.models import VideoTask, WatchSession
 from apps.tracking.services import process_watch_progress
+
+
+def calculate_level(total_xp: int) -> int:
+    """Local helper mirroring the canonical XP formula: level^2 * 20."""
+    import math
+    if total_xp <= 0:
+        return 1
+    lvl = int(math.isqrt(total_xp // 20))
+    return max(1, min(101, lvl if lvl > 0 else 1))
 
 def run_suite():
     print("=" * 70)
@@ -133,8 +142,8 @@ def run_suite():
     # Award large XP chunk and test level up
     xp_res = add_xp(user, 600, 'test_boost')
     assert xp_res['leveled_up'] == True
-    assert xp_res['level'] >= 5
-    print(f" [PASS] Level-up trigger executed: Leveled up to L{xp_res['level']} with perks: {xp_res['new_perks']}")
+    assert xp_res['new_level'] >= 5
+    print(f" [PASS] Level-up trigger executed: Leveled up to L{xp_res['new_level']}")
 
     profile_res = client.get('/api/v1/profile/', headers=auth_headers)
     assert profile_res.status_code == 200

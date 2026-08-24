@@ -3,7 +3,7 @@ from decimal import Decimal
 from django.db import transaction
 from django.utils import timezone
 from apps.gamification.models import ScratchCardClaim, UserProfile
-from apps.gamification.services.xp_service import add_xp
+from apps.xp_badges.services.xp_engine import add_xp
 from apps.wallet.models import Wallet, WalletTransaction
 
 PANEL_TYPES = [

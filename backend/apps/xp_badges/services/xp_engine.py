@@ -45,3 +45,29 @@ def add_xp(user, amount: int, source: str = 'unknown') -> dict:
             'xp_earned': amount,
             'source': source,
         }
+
+
+# Level milestone perks catalog (moved here from legacy xp_service.py — Phase Cleanup A)
+LEVEL_PERKS = {
+    1: ["Newbie Explorer Status", "Access to Standard Tasks"],
+    5: ["Unlock Basic Badge Showcase Slot", "+50 Bonus Coins"],
+    10: ["Unlock Coin Shop & Instant Voucher Exchange", "+100 Bonus Coins"],
+    20: ["Unlock Guild Creation & Team Squads", "+1 Free Streak Freeze", "+250 Bonus Coins"],
+    30: ["Unlock High-Payout Sponsor & Premium Tasks", "+500 Bonus Coins"],
+    50: ["Unlock Creator Dashboard (Promote Your Own Videos)", "+1,000 Bonus Coins"],
+    75: ["Unlock 2nd Badge Showcase Slot", "+2,500 Bonus Coins"],
+    100: ["Prestige Master Rank Unlocked", "Lifetime 1.5x Multiplier", "+5,000 Bonus Coins"],
+}
+
+
+def get_level_rewards_catalog() -> list:
+    """Returns milestone ladder with unlocked perks. Used by LevelRewardsCatalogView."""
+    milestones = [1, 5, 10, 20, 30, 50, 75, 100]
+    return [
+        {
+            'level': lvl,
+            'xp_required': (lvl ** 2) * 20,
+            'perks': LEVEL_PERKS.get(lvl, []),
+        }
+        for lvl in milestones
+    ]

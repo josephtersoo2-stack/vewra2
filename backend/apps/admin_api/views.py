@@ -649,7 +649,7 @@ class AdminBadgeViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'], url_path='seed_defaults')
     def seed_defaults(self, request):
-        from apps.gamification.services.badge_service import seed_default_badges
+        from apps.xp_badges.services.badge_engine import seed_default_badges
         seed_default_badges()
         serializer = self.get_serializer(Badge.objects.all().order_by('category', 'name'), many=True)
         return Response({

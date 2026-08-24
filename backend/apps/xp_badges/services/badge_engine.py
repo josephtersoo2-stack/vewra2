@@ -100,3 +100,36 @@ def evaluate_all_badges(user) -> dict:
             'total_coins_earned': round(total_coins_earned, 2),
         }
     }
+
+
+# Moved from legacy badge_service.py — Phase Cleanup A
+DEFAULT_BADGES = [
+    # Onboarding
+    {'key': 'first_steps', 'name': 'First Steps', 'desc': 'Complete your very first video task.', 'cat': 'onboarding', 'b': 1, 's': 1, 'g': 1, 'd': 1},
+    {'key': 'getting_started', 'name': 'Task Collector', 'desc': 'Complete video tasks.', 'cat': 'onboarding', 'b': 5, 's': 25, 'g': 100, 'd': 500},
+    # Watch
+    {'key': 'couch_potato', 'name': 'Couch Potato', 'desc': 'Total watch time hours on Vewra.', 'cat': 'watch', 'b': 10, 's': 50, 'g': 250, 'd': 1000},
+    {'key': 'marathoner', 'name': 'Marathoner', 'desc': 'Complete a 30+ minute video task.', 'cat': 'watch', 'b': 1, 's': 5, 'g': 20, 'd': 50},
+    # Earning
+    {'key': 'coin_collector', 'name': 'Coin Collector', 'desc': 'Total coins accumulated in wallet.', 'cat': 'earning', 'b': 100, 's': 1000, 'g': 10000, 'd': 50000},
+    {'key': 'lucky_streak', 'name': 'Streak Legend', 'desc': 'Maintain daily login streak days.', 'cat': 'earning', 'b': 7, 's': 30, 'g': 60, 'd': 100},
+    # Leveling
+    {'key': 'century_club', 'name': 'Century Club', 'desc': 'Reach higher account levels.', 'cat': 'special', 'b': 5, 's': 20, 'g': 50, 'd': 100},
+]
+
+
+def seed_default_badges():
+    """Seeds the default badge catalog. Called by admin seed_defaults action."""
+    for bdata in DEFAULT_BADGES:
+        Badge.objects.update_or_create(
+            key=bdata['key'],
+            defaults={
+                'name': bdata['name'],
+                'description': bdata['desc'],
+                'category': bdata['cat'],
+                'target_bronze': bdata['b'],
+                'target_silver': bdata['s'],
+                'target_gold': bdata['g'],
+                'target_diamond': bdata['d'],
+            }
+        )
