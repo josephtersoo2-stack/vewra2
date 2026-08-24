@@ -17,7 +17,7 @@ from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.gamification.models import (
-    UserProfile, DailyLoginStreak, SpinWheelClaim,
+    UserProfile, DailyLoginStreak,
     Badge, UserBadge, DailyQuest, ScratchCardClaim
 )
 from apps.xp_badges.services.xp_engine import add_xp

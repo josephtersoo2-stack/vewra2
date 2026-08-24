@@ -71,22 +71,6 @@ class DailyLoginStreak(models.Model):
         return 1.0
 
 
-class SpinWheelClaim(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='spin_claims')
-    date = models.DateField(db_index=True)
-    prize_type = models.CharField(max_length=50)   # coins, freeze, xp_boost, mystery_box
-    prize_value = models.CharField(max_length=50)  # e.g. "50", "1", "2x"
-    segment_landed = models.IntegerField()
-    claimed_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ('user', 'date')
-        ordering = ['-claimed_at']
-
-    def __str__(self):
-        return f"{self.user.username} | Spin on {self.date} -> {self.prize_type}: {self.prize_value}"
-
-
 class Badge(models.Model):
     CATEGORY_CHOICES = [
         ('onboarding', 'Onboarding'),

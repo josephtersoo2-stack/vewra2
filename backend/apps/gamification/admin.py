@@ -3,7 +3,6 @@ from apps.gamification.models import (
     UserProfile,
     DailyLoginStreak,
     StreakSettings,
-    SpinWheelClaim,
     SpinWheelSegment,
     DailySpinRecord,
     Badge,

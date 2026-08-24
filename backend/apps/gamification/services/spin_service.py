@@ -2,7 +2,7 @@ import random
 from decimal import Decimal
 from django.db import transaction
 from django.utils import timezone
-from apps.gamification.models import SpinWheelSegment, DailySpinRecord, SpinWheelClaim, UserProfile
+from apps.gamification.models import SpinWheelSegment, DailySpinRecord, UserProfile
 from apps.wallet.models import Wallet, WalletTransaction
 from apps.xp_badges.integration import on_daily_spin
 
@@ -38,10 +38,7 @@ def get_spin_status(user) -> dict:
     ensure_default_segments()
     today = timezone.now().date()
 
-    has_spun = (
-        DailySpinRecord.objects.filter(user=user, spin_date=today).exists() or
-        SpinWheelClaim.objects.filter(user=user, date=today).exists()
-    )
+    has_spun = DailySpinRecord.objects.filter(user=user, spin_date=today).exists()
 
     segments = list(SpinWheelSegment.objects.filter(is_active=True).order_by('order'))
     if not segments:
@@ -76,10 +73,7 @@ def process_daily_spin(user) -> dict:
     today = timezone.now().date()
 
     # Check 1 spin per day
-    if (
-        DailySpinRecord.objects.filter(user=user, spin_date=today).exists() or
-        SpinWheelClaim.objects.filter(user=user, date=today).exists()
-    ):
+    if DailySpinRecord.objects.filter(user=user, spin_date=today).exists():
         return {
             'already_spun': True,
             'success': False,
@@ -103,17 +97,6 @@ def process_daily_spin(user) -> dict:
             spin_date=today,
             segment_won=chosen_segment,
             coins_won=chosen_segment.reward_coins
-        )
-
-        # Legacy claim for backward compatibility
-        SpinWheelClaim.objects.get_or_create(
-            user=user,
-            date=today,
-            defaults={
-                'prize_type': 'coins',
-                'prize_value': str(chosen_segment.reward_coins),
-                'segment_landed': chosen_segment.order
-            }
         )
 
         # Credit wallet

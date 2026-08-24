@@ -78,8 +78,6 @@ def run_tests():
     test_player, _ = User.objects.get_or_create(username='spin_winner_player_1')
     today = timezone.now().date()
     DailySpinRecord.objects.filter(user=test_player).delete()
-    from apps.gamification.models import SpinWheelClaim
-    SpinWheelClaim.objects.filter(user=test_player).delete()
     
     # Initialize clean wallet
     wallet, _ = Wallet.objects.get_or_create(user=test_player)
