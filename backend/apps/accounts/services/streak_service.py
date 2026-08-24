@@ -3,8 +3,8 @@ from decimal import Decimal
 from django.db import transaction
 from django.utils import timezone
 from apps.gamification.models import DailyLoginStreak, StreakSettings, UserProfile
-from apps.gamification.services.xp_service import add_xp
 from apps.wallet.models import Wallet, WalletTransaction
+from apps.xp_badges.integration import on_streak_claimed
 
 
 def process_daily_streak(user) -> dict:
@@ -81,13 +81,13 @@ def process_daily_streak(user) -> dict:
             reference_id=f"streak_{today.isoformat()}"
         )
 
-        # Award XP
-        xp_res = add_xp(user, 15, 'daily_streak')
-
         # Milestone: every 30 days grant +2 streak freezes
         if streak.streak_count > 0 and streak.streak_count % 30 == 0:
             profile.streak_freeze_count += 2
             profile.save()
+
+        # Award dynamic XP and evaluate badges via integration hook
+        streak_gamification = on_streak_claimed(user)
 
         return {
             'already_claimed': False,
@@ -103,6 +103,7 @@ def process_daily_streak(user) -> dict:
             'streak_multiplier': streak.streak_multiplier,
             'freeze_used': freeze_used,
             'wallet_balance': float(wallet.balance),
-            'xp_earned': 15,
-            'level_info': xp_res,
+            'xp_earned': streak_gamification['xp'].get('xp_earned', 15),
+            'level_info': streak_gamification['xp'],
+            'badge_info': streak_gamification['badges'],
         }

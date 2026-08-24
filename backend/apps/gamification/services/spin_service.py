@@ -3,8 +3,8 @@ from decimal import Decimal
 from django.db import transaction
 from django.utils import timezone
 from apps.gamification.models import SpinWheelSegment, DailySpinRecord, SpinWheelClaim, UserProfile
-from apps.gamification.services.xp_service import add_xp
 from apps.wallet.models import Wallet, WalletTransaction
+from apps.xp_badges.integration import on_daily_spin
 
 DEFAULT_12_SEGMENTS = [
     {'order': 1, 'label': '5 Coins', 'reward_coins': 5, 'weight': 25, 'color': '#4F46E5', 'is_active': True},
@@ -133,8 +133,8 @@ def process_daily_spin(user) -> dict:
             reference_id=f"spin_{record.id}"
         )
 
-        # Award XP (+15 XP for daily spin)
-        xp_res = add_xp(user, 15, 'daily_spin')
+        # Award dynamic XP and evaluate badges via integration hook
+        spin_gamification = on_daily_spin(user)
 
         return {
             'success': True,
@@ -155,8 +155,9 @@ def process_daily_spin(user) -> dict:
             'prize_type': 'coins',
             'prize_value': str(chosen_segment.reward_coins),
             'label': chosen_segment.label,
-            'xp_earned': 15,
-            'level_info': xp_res,
+            'xp_earned': spin_gamification['xp'].get('xp_earned', 15),
+            'level_info': spin_gamification['xp'],
+            'badge_info': spin_gamification['badges'],
         }
 
 
